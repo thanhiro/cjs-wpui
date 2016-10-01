@@ -14,9 +14,21 @@ function withParams(Component) {
 
 function intent(sources) {
   return {
-    homePageClick$: sources.DOM.select(".home-link").events("click"),
-    articlePageClick$: sources.DOM.select(".article-link").events("click"),
-    categoryPageClick$: sources.DOM.select(".category-link").events("click"),
+    homePageClick$: sources.DOM.select(".home-link").events("click")
+      .map(e => {
+        e.preventDefault();
+        return e.target.href;
+      }),
+    articlePageClick$: sources.DOM.select(".article-link").events("click")
+      .map(e => {
+        e.preventDefault();
+        return e.target.href;
+      }),
+    categoryPageClick$: sources.DOM.select(".category-link").events("click")
+      .map(e => {
+        e.preventDefault();
+        return e.target.href;
+      }),
     ...sources
   };
 }
@@ -35,11 +47,11 @@ function view(sources) {
     value({...sources, path: router.path(path)}));
 
   const makeLink = (path, label, klass) =>
-    <a className={klass} dataHref={path} style={{padding: '1em'}}>{label}</a>;
+    <a className={klass} href={path} style={{padding: '1em'}}>{label}</a>;
 
-  const nav$ = xs.of(nav({styl  e: {marginBottom: '1em'}}, [
+  const nav$ = xs.of(nav({style: {marginBottom: '1em'}}, [
     makeLink('/', 'Home', 'home-link'),
-    makeLink('/some-slug-here', 'Article', 'article-link'),
+    makeLink('/some-slug', 'Article', 'article-link'),
     makeLink('/category/my-slug', 'Category', 'category-link')
   ]));
 
@@ -52,9 +64,9 @@ function view(sources) {
     ...sources,
     DOM: vdom$,
     router: xs.merge(
-      sources.homePageClick$.mapTo('/'),
-      sources.articlePageClick$.mapTo('/some-slug-here'),
-      sources.categoryPageClick$.mapTo('/category/some-slug-here')
+      sources.homePageClick$,
+      sources.articlePageClick$,
+      sources.categoryPageClick$
     )
   };
 }
